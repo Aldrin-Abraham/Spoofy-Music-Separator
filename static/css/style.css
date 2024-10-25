@@ -58,6 +58,17 @@ button:hover {
     background-color: #ff4500;         /* Darker shade on hover */
 }
 
+#logo {
+    margin-top: 20px; /* Space below the logo */
+    width: 150px; /* Adjust width as needed */
+    align-items: center;      /* Center horizontally */
+    justify-content: center;  /* Center vertically if needed */
+    height: auto; /* Maintain aspect ratio */
+    margin-bottom: 20px; /* Space below the logo */
+    margin-left: auto;       /* Center the logo */
+    margin-right: auto;      /* Center the logo */
+}
+
 /* Progress Bar Container */
 #progress-container {
     display: flex;
