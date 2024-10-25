@@ -3,11 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Spoofy Origin</title>
+    <title>Spoofy</title>
     <link rel="stylesheet" href="/static/css/style.css">
 </head>
 <body>
-    <h1>Welcome to Spoofy Origin</h1>
+    <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Spoofy Logo" id="logo">
+    <h1>Welcome to Spoofy</h1>
     <p>Upload a song to split it into karaoke and autotune tracks.</p>
     
     <form id="uploadForm" enctype="multipart/form-data">
