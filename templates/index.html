@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spoofy Origin</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <h1>Welcome to Spoofy Origin</h1>
+    <p>Upload a song to split it into karaoke and autotune tracks.</p>
+    
+    <form id="uploadForm" enctype="multipart/form-data">
+        <input type="file" id="fileInput" name="file" accept="audio/*" required>
+        <button type="button" onclick="uploadSong()">Upload</button>
+    </form>
+    
+    <div id="progress-container" style="display: none;">
+        <p>Processing: <span id="progress-text">0%</span></p>
+        <progress id="progress-bar" value="0" max="100"></progress>
+    </div>
+    
+    <div id="download-links" style="display: none;">
+        <h2>Download your files:</h2>
+        <a id="karaoke-link" href="#" download>Download Karaoke</a>
+        <a id="autotune-link" href="#" download>Download Autotune</a>
+    </div>
+
+    <script src="/static/js/script.js"></script>
+</body>
+</html>
