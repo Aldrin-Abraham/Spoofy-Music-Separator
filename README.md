@@ -1,25 +1,28 @@
 <img width="1280" alt="readme-banner" src="https://github.com/user-attachments/assets/35332e92-44cb-425b-9dff-27bcf1023c6c">
 
-# [Project Name] 🎯
+# Spoofy - Karaoke/Autotune Creator 🎯
 
 
 ## Basic Details
-### Team Name: [Name]
+### Team Name: Harmony Forge
 
 
 ### Team Members
-- Team Lead: [Name] - [College]
-- Member 2: [Name] - [College]
-- Member 3: [Name] - [College]
+- Team Lead: Aldrin Abraham - SSET
 
 ### Project Description
-[2-3 lines about what your project does]
+Spoofy is a web platform that transforms uploaded songs into karaoke and autotune versions using AI-powered audio separation with Demucs. Users can upload a song and instantly receive high-quality, isolated vocal and instrumental tracks, perfect for karaoke enthusiasts and remix creators. Built for seamless audio processing, Spoofy brings professional-grade music tools to everyone.
 
 ### The Problem (that doesn't exist)
-[What ridiculous problem are you solving?]
+In today’s digital age, music creators and enthusiasts often seek ways to experiment with and customize their favorite tracks, whether for karaoke sessions, remixing, or personal projects. However, achieving high-quality separation of vocals and instrumentals from a song often requires specialized audio processing software and technical expertise, which can be complex and inaccessible to casual users.
+
+Challenges include:
+* Limited Accessibility: Most audio separation tools are complex and require knowledge of audio engineering or technical skills to operate.
+* High Costs: Professional-grade tools for audio separation are often costly and inaccessible to average users.
+* Lack of Automation: For non-technical users, the steps involved in manually isolating vocals and instruments can be tedious and time-consuming.
 
 ### The Solution (that nobody asked for)
-[How are you solving it? Keep it fun!]
+Spoofy addresses these challenges by providing an intuitive, web-based platform that automates the process of separating a song into karaoke (instrumental) and autotune (vocal) versions using AI-powered Demucs technology. With a simple upload process, Spoofy enables users to instantly access instrumental and vocal tracks, empowering them to create karaoke sessions, remixes, or custom audio projects with ease. This makes audio processing technology accessible, affordable, and user-friendly for a wider audience.
 
 ## Technical Details
 ### Technologies/Components Used
