@@ -60,9 +60,15 @@ button:hover {
 
 /* Progress Bar Container */
 #progress-container {
+    display: flex;
+    flex-direction: column;   /* Stack text and progress bar vertically */
+    align-items: center;      /* Center horizontally */
+    justify-content: center;  /* Center vertically if needed */
     margin-top: 20px;
     width: 100%;
     max-width: 400px;
+    margin-left: auto;       /* Center the container */
+    margin-right: auto;      /* Center the container */
 }
 
 /* Progress Text Styling */
