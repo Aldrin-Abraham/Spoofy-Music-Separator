@@ -14,7 +14,7 @@ function uploadSong() {
     let simulatedProgress = 0;
     const interval = setInterval(() => {
         if (simulatedProgress < 95) {
-            simulatedProgress += 0.35; // Increment by 0.35% every 1000ms
+            simulatedProgress += 0.38; // Increment by 0.38% every 1000ms
             progressBar.value = simulatedProgress;
             progressText.textContent = simulatedProgress + '%';
         } else {
