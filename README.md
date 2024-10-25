@@ -27,18 +27,63 @@ Spoofy addresses these challenges by providing an intuitive, web-based platform 
 ## Technical Details
 ### Technologies/Components Used
 For Software:
-- [Languages used]
-- [Frameworks used]
-- [Libraries used]
-- [Tools used]
+
+1.Languages Used:
+* Python: Backend development, handling file uploads, and processing using the Demucs model.
+* HTML/CSS: For building the frontend structure and styling.
+* JavaScript: For dynamic frontend interactions like progress bars and handling file uploads.
+
+2.Frameworks Used:
+* Flask: A lightweight web framework for routing, managing user requests, and serving the web application.
+
+3.Libraries Used:
+* Demucs: For audio source separation (splits audio into vocals and instrumentals).
+* Torch: Required as the underlying library for Demucs, providing model processing capabilities.
+* Werkzeug: A Python library used by Flask for secure file handling.
+
+4.Tools Used:
+* VS Code: For code editing and debugging.
+* Git: Version control for managing changes and collaboration.
+* GitHub: For hosting and managing the project repository.
 
 For Hardware:
-- [List main components]
-- [List specifications]
-- [List tools required]
+
+1.Main Components:
+*Computer: General-purpose computer or laptop capable of running Python and Flask applications.
+* Speakers: For testing audio output of processed tracks.
+
+2.Specifications:
+* Processor: Intel i5 or equivalent recommended for local processing.
+* RAM: Minimum 8GB to handle audio processing tasks smoothly.
+* Storage: Sufficient disk space to handle multiple audio files (at least 1 GB free).
+
+3.Tools Required:
+* Python Environment: Python 3.x installed on the system.
+* Package Manager: pip for managing and installing dependencies.
 
 ### Implementation
 For Software:
+
+1.File Upload and Server Setup:
+* Flask handles incoming file uploads from the frontend.
+* Uploaded files are stored temporarily in the uploads/ directory, with the file paths referenced for processing.
+
+2.Audio Processing Using Demucs:
+* The uploaded audio file is processed using Demucs.
+* Demucs model loads the file and splits it into two outputs:
+* Instrumental (Karaoke) Track: Extracted from the audio as an isolated instrumental.
+* Vocal (Autotune) Track: Isolated vocal track generated separately.
+* Processed audio files are saved in static/audio/ for easy access from the web interface.
+
+3.Frontend Design and User Interaction:
+* The index.html page includes a file upload form, with JavaScript functions to display progress bars during the upload and processing stages.
+* JavaScript (script.js) dynamically updates progress bars to reflect upload and processing status.
+* CSS (style.css) provides styling to center elements and enhance the visual layout of the progress bars and download links.
+
+4.Downloadable Output:
+* Processed files (instrumental and vocal tracks) are made available for download once processing completes.
+* Links to these files are dynamically generated and displayed on the frontend.
+
 # Installation
 [commands]
 
