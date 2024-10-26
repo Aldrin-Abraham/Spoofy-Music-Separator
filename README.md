@@ -87,14 +87,12 @@ For Software:
 # Installation
 1. Clone the repository:
 ~~~bash
-Copy code
 git clone https://github.com/yourusername/spoofy-origin.git
 cd spoofy-origin
 ~~~
 
 2. Set up a virtual environment (optional but recommended):
 ~~~bash
-Copy code
 python -m venv venv
 source venv/bin/activate  # For Linux/Mac
 venv\Scripts\activate     # For Windows
@@ -102,9 +100,53 @@ venv\Scripts\activate     # For Windows
 
 3. Install dependencies:
 ~~~bash
-Copy code
 pip install -r requirements.txt
 ~~~
+
+# Run
+1.Start the Flask server:
+~~~bash
+python app.py
+~~~
+2.Open your browser and go to:
+~~~arduino
+http://localhost:5000
+~~~
+3.Upload a song, and the progress bar will display upload and processing stages. After completion, download options for karaoke and autotune versions will appear.
+
+### Project Documentation
+For Software:
+#### Overview
+Spoofy Origin is a web-based application that takes any song as input, processes it to separate the instrumental (karaoke) and vocal (autotune) tracks using machine learning and audio processing techniques with the Demucs library. Users can download the karaoke and autotune versions of their uploaded track for creative uses like singing along or remixing.
+
+#### Features
+* Song Upload: Users can upload any supported audio file (e.g., MP3).
+* Audio Separation: Demucs processes the song to split it into isolated vocal and instrumental tracks.
+* Download Options: Users can download either the karaoke (instrumental) or autotune (vocal) version of the song.
+* Real-time Progress Feedback: Progress bars show upload and processing statuses.
+
+#### Technologies Used
+* Languages: Python, JavaScript, HTML, CSS
+* Frameworks: Flask (for backend and server handling)
+* Libraries:
+** Demucs: For machine learning-based audio source separation
+** Flask: To build the web server and handle user requests
+** Jinja2: Flask’s templating engine for rendering dynamic HTML
+* Tools:
+** ffmpeg: Necessary for audio processing by Demucs
+** Virtualenv: For creating isolated environments (optional but recommended)
+
+#### Architecture
+The project uses a client-server architecture with the following components:
+
+* Frontend (HTML/CSS/JavaScript):
+User interface for uploading files, displaying progress, and providing download options.
+JavaScript manages the progress bar and handles async communication with the backend.
+
+* Backend (Python/Flask):
+Routes for handling file uploads, audio processing, and generating output download links.
+Uses Demucs for processing and separating audio tracks, with Flask managing the workflow and file handling.
+
 ---
 Made with ❤️ at TinkerHub Useless Projects 
 
