@@ -86,23 +86,25 @@ For Software:
 
 # Installation
 1. Clone the repository:
-***bash
+~~~bash
 Copy code
 git clone https://github.com/yourusername/spoofy-origin.git
 cd spoofy-origin
+~~~
 
 2. Set up a virtual environment (optional but recommended):
-bash
+~~~bash
 Copy code
 python -m venv venv
 source venv/bin/activate  # For Linux/Mac
 venv\Scripts\activate     # For Windows
+~~~
 
 3. Install dependencies:
-bash
+~~~bash
 Copy code
 pip install -r requirements.txt
-
+~~~
 ---
 Made with ❤️ at TinkerHub Useless Projects 
 
