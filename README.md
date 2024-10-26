@@ -153,12 +153,12 @@ Uses Demucs for processing and separating audio tracks, with Flask managing the 
 ![1](https://github.com/user-attachments/assets/d1accde9-e9a3-48e9-aedf-d66c3db8a2f8)
 
 
-3. Webpage during processing
+2. Webpage during processing
 
 ![2](https://github.com/user-attachments/assets/9cbf3da9-a13b-4ab1-9636-b1710fa409f1)
 
 
-5. Webpage after processing
+3. Webpage after processing
 
 ![3](https://github.com/user-attachments/assets/49e2be86-5810-4e7b-9b1a-3bf105b5dea5)
 
