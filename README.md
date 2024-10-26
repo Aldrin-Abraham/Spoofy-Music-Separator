@@ -86,7 +86,7 @@ For Software:
 
 # Installation
 1. Clone the repository:
-...bash
+***bash
 Copy code
 git clone https://github.com/yourusername/spoofy-origin.git
 cd spoofy-origin
