@@ -129,12 +129,12 @@ Spoofy Origin is a web-based application that takes any song as input, processes
 * Languages: Python, JavaScript, HTML, CSS
 * Frameworks: Flask (for backend and server handling)
 * Libraries:
-** Demucs: For machine learning-based audio source separation
-** Flask: To build the web server and handle user requests
-** Jinja2: Flask’s templating engine for rendering dynamic HTML
+  * Demucs: For machine learning-based audio source separation
+  * Flask: To build the web server and handle user requests
+  * Jinja2: Flask’s templating engine for rendering dynamic HTML
 * Tools:
-** ffmpeg: Necessary for audio processing by Demucs
-** Virtualenv: For creating isolated environments (optional but recommended)
+  * ffmpeg: Necessary for audio processing by Demucs
+  * Virtualenv: For creating isolated environments (optional but recommended)
 
 #### Architecture
 The project uses a client-server architecture with the following components:
