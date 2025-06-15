@@ -3,28 +3,119 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Spoofy</title>
+    <title>Spoofy Origin - Music Separation Tool</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="icon" href="/static/images/favicon.ico" type="image/x-icon">
 </head>
 <body>
-    <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Spoofy Logo" id="logo">
-    <h1>Welcome to Spoofy</h1>
-    <p>Upload a song to split it into karaoke and autotune tracks.</p>
-    
-    <form id="uploadForm" enctype="multipart/form-data">
-        <input type="file" id="fileInput" name="file" accept="audio/*" required>
-        <button type="button" onclick="uploadSong()">Upload</button>
-    </form>
-    
-    <div id="progress-container" style="display: none;">
-        <p>Processing: <span id="progress-text">0%</span></p>
-        <progress id="progress-bar" value="0" max="100"></progress>
+    <div class="container">
+        <header>
+            <img src="/static/images/logo.png" alt="Spoofy Logo" id="logo">
+            <h1>Spoofy Origin</h1>
+            <p class="subtitle">Transform your music with AI-powered vocal separation and autotune</p>
+        </header>
+
+        <main>
+            <div class="upload-card">
+                <div class="upload-header">
+                    <i class="fas fa-music"></i>
+                    <h2>Upload Your Song</h2>
+                </div>
+                
+                <form id="uploadForm" enctype="multipart/form-data" class="dropzone">
+                    <div class="file-input-wrapper">
+                        <label for="fileInput" class="file-label">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                            <span id="file-name">Choose an audio file or drag it here</span>
+                            <input type="file" id="fileInput" name="file" accept="audio/*" required>
+                        </label>
+                    </div>
+                    
+                    <div class="form-footer">
+                        <button type="button" class="btn-primary" id="upload-btn">
+                            <i class="fas fa-upload"></i> Process Song
+                        </button>
+                        <p class="file-requirements">Supports: MP3, WAV, FLAC (Max 50MB)</p>
+                    </div>
+                </form>
+            </div>
+            
+            <div id="progress-container" class="progress-container hidden">
+                <div class="progress-header">
+                    <i class="fas fa-cog fa-spin"></i>
+                    <h3>Processing Your Song</h3>
+                </div>
+                <div class="progress-content">
+                    <p id="progress-text">Initializing processing...</p>
+                    <div class="progress-wrapper">
+                        <progress id="progress-bar" value="0" max="100"></progress>
+                        <span id="progress-percent">0%</span>
+                    </div>
+                    <div class="progress-details">
+                        <p id="progress-status">Starting audio processing...</p>
+                        <p id="time-estimate">Estimated time remaining: calculating...</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="results-container" class="results-container hidden">
+                <div class="results-header">
+                    <i class="fas fa-check-circle"></i>
+                    <h3>Your Files Are Ready!</h3>
+                </div>
+                <div class="download-options">
+                    <div class="download-card" id="karaoke-card">
+                        <div class="download-icon">
+                            <i class="fas fa-guitar"></i>
+                        </div>
+                        <h4>Karaoke Version</h4>
+                        <p>Instrumental track with background vocals</p>
+                        <a id="karaoke-link" href="#" download class="btn-download">
+                            <i class="fas fa-download"></i> Download
+                        </a>
+                    </div>
+                    
+                    <div class="download-card" id="autotune-card">
+                        <div class="download-icon">
+                            <i class="fas fa-microphone"></i>
+                        </div>
+                        <h4>Autotune Version</h4>
+                        <p>Isolated vocals with autotune effect</p>
+                        <a id="autotune-link" href="#" download class="btn-download">
+                            <i class="fas fa-download"></i> Download
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="action-buttons">
+                    <button class="btn-secondary" id="reset-btn">
+                        <i class="fas fa-redo"></i> Process Another Song
+                    </button>
+                    <button class="btn-share" id="share-btn">
+                        <i class="fas fa-share-alt"></i> Share Results
+                    </button>
+                </div>
+            </div>
+        </main>
+        
+        <footer>
+            <p>© 2024 Spoofy Origin | <a href="#" id="privacy-link">Privacy Policy</a> | <a href="#" id="terms-link">Terms of Service</a></p>
+        </footer>
     </div>
-    
-    <div id="download-links" style="display: none;">
-        <h2>Download your files:</h2>
-        <a id="karaoke-link" href="#" download>Download Karaoke</a>
-        <a id="autotune-link" href="#" download>Download Autotune</a>
+
+    <!-- Audio player modal -->
+    <div id="player-modal" class="modal hidden">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h3>Preview</h3>
+            <audio id="audio-preview" controls></audio>
+            <div class="modal-buttons">
+                <button class="btn-primary" id="play-selected">Play Selected</button>
+                <button class="btn-secondary" id="close-player">Close</button>
+            </div>
+        </div>
     </div>
 
     <script src="/static/js/script.js"></script>
