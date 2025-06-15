@@ -1,127 +1,377 @@
-/* General Page Styling */
-body {
-    font-family: Arial, sans-serif;
-    text-align: center;
-    margin: 0;
-    padding: 0;
-    background-image: url('/static/images/background.jpg'); /* Background image path */
-    background-size: cover;            /* Cover the entire viewport */
-    background-position: center;       /* Center the image */
-    background-attachment: fixed;      /* Fixed background while scrolling */
-    color: white;                      /* White text for contrast */
+:root {
+    --primary-color: #1DB954;
+    --secondary-color: #191414;
+    --accent-color: #ff6347;
+    --text-light: #ffffff;
+    --text-dark: #333333;
+    --bg-overlay: rgba(25, 20, 20, 0.85);
+    --card-bg: rgba(255, 255, 255, 0.1);
+    --progress-bg: #4caf50;
+    --error-color: #e74c3c;
 }
 
-/* Container for Main Content */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Poppins', 'Segoe UI', sans-serif;
+    line-height: 1.6;
+    color: var(--text-light);
+    background-image: url('/static/images/Background.png');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    min-height: 100vh;
+}
+
 .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+    background: var(--bg-overlay);
+    backdrop-filter: blur(5px);
+    min-height: 100vh;
+}
+
+header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+#logo {
+    width: 180px;
+    height: auto;
+    margin-bottom: 1rem;
+    transition: transform 0.3s ease;
+}
+
+#logo:hover {
+    transform: scale(1.05);
+}
+
+.subtitle {
+    font-size: 1.1rem;
+    opacity: 0.9;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.upload-card, .progress-container, .results-container {
+    background: var(--card-bg);
+    border-radius: 12px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    animation: fadeIn 0.5s ease-out forwards;
+}
+
+.upload-header, .progress-header, .results-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.8rem;
+    margin-bottom: 1.5rem;
+}
+
+.upload-header i, .progress-header i, .results-header i {
+    font-size: 1.8rem;
+    color: var(--primary-color);
+}
+
+.dropzone {
+    border: 2px dashed rgba(255, 255, 255, 0.3);
+    border-radius: 8px;
+    padding: 2rem;
+    transition: all 0.3s ease;
+}
+
+.dropzone:hover {
+    border-color: var(--primary-color);
+}
+
+.file-input-wrapper {
+    position: relative;
+    margin-bottom: 1.5rem;
+}
+
+.file-label {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    min-height: 100vh;
-    padding: 20px;
-    background: rgba(0, 0, 0, 0.6);    /* Optional: Adds overlay to improve readability */
-    border-radius: 10px;
-}
-
-/* Header Styling */
-h1 {
-    font-size: 2.5rem;
-    margin-bottom: 10px;
-}
-
-/* Paragraph Styling */
-p {
-    font-size: 1.2rem;
-    margin-bottom: 20px;
-}
-
-/* File Input Styling */
-input[type="file"] {
-    margin: 10px 0;
-    padding: 8px;
-    font-size: 1rem;
-}
-
-/* Button Styling */
-button {
-    padding: 10px 20px;
-    font-size: 1rem;
-    background-color: #ff6347;         /* Tomato color */
-    color: white;
-    border: none;
-    border-radius: 5px;
+    padding: 2rem;
     cursor: pointer;
-    transition: background-color 0.3s;
+    transition: all 0.3s ease;
 }
 
-button:hover {
-    background-color: #ff4500;         /* Darker shade on hover */
+.file-label:hover {
+    transform: translateY(-3px);
 }
 
-#logo {
-    margin-top: 20px; /* Space below the logo */
-    width: 150px; /* Adjust width as needed */
-    align-items: center;      /* Center horizontally */
-    justify-content: center;  /* Center vertically if needed */
-    height: auto; /* Maintain aspect ratio */
-    margin-bottom: 20px; /* Space below the logo */
-    margin-left: auto;       /* Center the logo */
-    margin-right: auto;      /* Center the logo */
+.file-label i {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    color: var(--primary-color);
 }
 
-/* Progress Bar Container */
-#progress-container {
-    display: flex;
-    flex-direction: column;   /* Stack text and progress bar vertically */
-    align-items: center;      /* Center horizontally */
-    justify-content: center;  /* Center vertically if needed */
-    margin-top: 20px;
+#fileInput {
+    position: absolute;
     width: 100%;
-    max-width: 400px;
-    margin-left: auto;       /* Center the container */
-    margin-right: auto;      /* Center the container */
+    height: 100%;
+    opacity: 0;
+    top: 0;
+    left: 0;
+    cursor: pointer;
 }
 
-/* Progress Text Styling */
-#progress-text {
+#file-name {
     font-size: 1rem;
-    margin-bottom: 5px;
+    margin-top: 0.5rem;
+    color: rgba(255, 255, 255, 0.8);
 }
 
-/* Progress Bar Styling */
-progress {
-    width: 100%;
-    height: 20px;
-    border-radius: 5px;
-    overflow: hidden;
-    appearance: none;
+.file-requirements {
+    font-size: 0.9rem;
+    margin-top: 1rem;
+    color: rgba(255, 255, 255, 0.6);
 }
 
-progress::-webkit-progress-bar {
-    background-color: #ddd;
-}
-
-progress::-webkit-progress-value {
-    background-color: #4caf50;         /* Green color */
-}
-
-/* Download Links Styling */
-#download-links {
-    margin-top: 20px;
-}
-
-#download-links a {
-    display: inline-block;
-    margin: 10px;
-    padding: 10px 20px;
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.8rem 1.8rem;
     font-size: 1rem;
-    background-color: #1e90ff;         /* Dodger blue */
+    font-weight: 600;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: none;
+}
+
+.btn-primary {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.btn-primary:hover {
+    background-color: #1ed760;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(29, 185, 84, 0.3);
+}
+
+.btn-secondary {
+    background-color: transparent;
+    color: white;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+.btn-secondary:hover {
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+}
+
+.btn-download {
+    background-color: var(--secondary-color);
     color: white;
     text-decoration: none;
-    border-radius: 5px;
-    transition: background-color 0.3s;
+    margin-top: 1rem;
 }
 
-#download-links a:hover {
-    background-color: #187bcd;         /* Darker blue on hover */
+.btn-download:hover {
+    background-color: #000;
+}
+
+.btn-share {
+    background-color: #4267B2;
+    color: white;
+}
+
+.btn-share:hover {
+    background-color: #3b5998;
+}
+
+.progress-content {
+    text-align: center;
+}
+
+.progress-wrapper {
+    position: relative;
+    margin: 1.5rem 0;
+}
+
+#progress-bar {
+    width: 100%;
+    height: 12px;
+    border-radius: 6px;
+    appearance: none;
+    overflow: hidden;
+}
+
+#progress-bar::-webkit-progress-bar {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 6px;
+}
+
+#progress-bar::-webkit-progress-value {
+    background-color: var(--progress-bg);
+    border-radius: 6px;
+    transition: width 0.5s ease;
+}
+
+#progress-percent {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 0.8rem;
+    color: white;
+}
+
+.progress-details {
+    margin-top: 1rem;
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.download-options {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin: 2rem 0;
+}
+
+.download-card {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 10px;
+    padding: 1.5rem;
+    transition: transform 0.3s ease;
+}
+
+.download-card:hover {
+    transform: translateY(-5px);
+    background: rgba(0, 0, 0, 0.3);
+}
+
+.download-icon {
+    font-size: 2.5rem;
+    color: var(--primary-color);
+    margin-bottom: 1rem;
+}
+
+.download-card h4 {
+    margin-bottom: 0.5rem;
+}
+
+.download-card p {
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.7);
+    margin-bottom: 1rem;
+}
+
+.action-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-top: 1.5rem;
+}
+
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-content {
+    background: var(--secondary-color);
+    padding: 2rem;
+    border-radius: 10px;
+    max-width: 500px;
+    width: 90%;
+    text-align: center;
+}
+
+.close-modal {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    font-size: 1.5rem;
+    cursor: pointer;
+}
+
+#audio-preview {
+    width: 100%;
+    margin: 1.5rem 0;
+}
+
+footer {
+    margin-top: 3rem;
+    text-align: center;
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.6);
+}
+
+footer a {
+    color: rgba(255, 255, 255, 0.8);
+    text-decoration: none;
+    margin: 0 0.5rem;
+}
+
+footer a:hover {
+    color: var(--primary-color);
+}
+
+@media (max-width: 768px) {
+    .container {
+        padding: 1rem;
+    }
+    
+    .upload-card, .progress-container, .results-container {
+        padding: 1.5rem;
+    }
+    
+    .download-options {
+        grid-template-columns: 1fr;
+    }
+    
+    .action-buttons {
+        flex-direction: column;
+    }
+    
+    .btn {
+        width: 100%;
+    }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.hidden {
+    display: none !important;
+}
+
+.error-message {
+    color: var(--error-color);
+    margin-top: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.dragover {
+    border-color: var(--primary-color) !important;
+    background: rgba(29, 185, 84, 0.1);
 }
