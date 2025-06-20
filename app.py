@@ -3,23 +3,20 @@ import os
 import subprocess
 import uuid
 import time
-from werkzeug.utils import secure_filename
-from functools import wraps
 import logging
-from logging.handlers import RotatingFileHandler
+from werkzeug.utils import secure_filename
 from apscheduler.schedulers.background import BackgroundScheduler
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = 'uploads'
 app.config['AUDIO_FOLDER'] = 'static/audio'
-app.config['MAX_CONTENT_LENGTH'] = 50 * 1024 * 1024  # 50MB limit
+app.config['MAX_CONTENT_LENGTH'] = 50 * 1024 * 1024  # 50MB
 app.config['ALLOWED_EXTENSIONS'] = {'mp3', 'wav', 'flac', 'ogg', 'm4a'}
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
-handler = RotatingFileHandler('app.log', maxBytes=1000000, backupCount=3)
-handler.setFormatter(logging.Formatter(
-    '%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]'))
+handler = logging.FileHandler('app.log')
+handler.setFormatter(logging.Formatter('%(asctime)s %(levelname)s: %(message)s'))
 app.logger.addHandler(handler)
 
 # Ensure folders exist
@@ -27,31 +24,11 @@ os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 os.makedirs(app.config['AUDIO_FOLDER'], exist_ok=True)
 
 def allowed_file(filename):
-    return '.' in filename and \
-           filename.rsplit('.', 1)[1].lower() in app.config['ALLOWED_EXTENSIONS']
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in app.config['ALLOWED_EXTENSIONS']
 
-def async_processing(f):
-    @wraps(f)
-    def wrapper(*args, **kwargs):
-        from threading import Thread
-        thread = Thread(target=f, args=args, kwargs=kwargs)
-        thread.start()
-        return thread
-    return wrapper
-
-def cleanup_old_files(directory, max_age_hours=24):
-    """Remove files older than max_age_hours"""
-    now = time.time()
-    for filename in os.listdir(directory):
-        file_path = os.path.join(directory, filename)
-        if os.path.isfile(file_path):
-            file_age = (now - os.path.getmtime(file_path)) / 3600  # hours
-            if file_age > max_age_hours:
-                try:
-                    os.remove(file_path)
-                    app.logger.info(f"Removed old file: {file_path}")
-                except Exception as e:
-                    app.logger.error(f"Error removing file {file_path}: {e}")
+def normalize_path(*paths):
+    """Convert paths to absolute and normalize slashes for Windows"""
+    return os.path.abspath(os.path.join(*paths))
 
 @app.route('/')
 def index():
@@ -70,18 +47,17 @@ def upload_file():
         return jsonify({"error": "File type not allowed"}), 400
 
     try:
-        # Generate unique filename to prevent collisions
-        original_filename = secure_filename(file.filename)
+        # Generate unique filename
         unique_id = uuid.uuid4().hex
-        file_ext = os.path.splitext(original_filename)[1]
+        file_ext = os.path.splitext(secure_filename(file.filename))[1]
         unique_filename = f"{unique_id}{file_ext}"
+        filepath = normalize_path(app.config['UPLOAD_FOLDER'], unique_filename)
         
-        # Save the uploaded file
-        filepath = os.path.join(app.config['UPLOAD_FOLDER'], unique_filename)
+        # Save file
         file.save(filepath)
         app.logger.info(f"File saved to: {filepath}")
 
-        # Start processing in background
+        # Start processing
         process_audio(filepath, unique_id)
         
         return jsonify({
@@ -91,94 +67,111 @@ def upload_file():
         })
         
     except Exception as e:
-        app.logger.error(f"Error during upload: {str(e)}")
+        app.logger.error(f"Upload error: {str(e)}")
         return jsonify({"error": str(e)}), 500
+
+def process_audio(filepath, task_id):
+    """Background audio processing"""
+    try:
+        output_folder = normalize_path(app.config['AUDIO_FOLDER'], task_id)
+        os.makedirs(output_folder, exist_ok=True)
+        
+        # Run Demucs (with explicit model to ensure consistent output paths)
+        demucs_output = normalize_path(output_folder, "htdemucs")
+        command = [
+            "demucs",
+            "--name", "htdemucs",
+            "-o", output_folder,
+            filepath
+        ]
+        
+        app.logger.info(f"Running Demucs: {' '.join(command)}")
+        result = subprocess.run(command, capture_output=True, text=True, timeout=600)  # 10min timeout
+        
+        if result.returncode != 0:
+            raise Exception(f"Demucs failed: {result.stderr}")
+        
+        # Verify outputs
+        separated_folder = normalize_path(demucs_output, os.path.basename(filepath).rsplit('.', 1)[0])
+        karaoke_wav = normalize_path(separated_folder, "other.wav")
+        vocals_wav = normalize_path(separated_folder, "vocals.wav")
+        
+        if not os.path.exists(karaoke_wav):
+            raise FileNotFoundError(f"Demucs output missing: {karaoke_wav}")
+        
+        # Convert to MP3
+        karaoke_mp3 = normalize_path(output_folder, "other.mp3")
+        vocals_mp3 = normalize_path(output_folder, "vocals.mp3")
+        
+        if not convert_to_mp3(karaoke_wav, karaoke_mp3):
+            raise Exception("Karaoke conversion failed")
+        if not convert_to_mp3(vocals_wav, vocals_mp3):
+            raise Exception("Vocals conversion failed")
+        
+        # Cleanup temporary files
+        os.remove(filepath)
+        os.remove(karaoke_wav)
+        os.remove(vocals_wav)
+        
+        # Create completion flag
+        with open(normalize_path(output_folder, "completed.flag"), 'w') as f:
+            f.write('')
+            
+        app.logger.info(f"Processing completed for {task_id}")
+        
+    except Exception as e:
+        app.logger.error(f"Processing error: {str(e)}")
+        error_flag = normalize_path(output_folder, "error.flag")
+        with open(error_flag, 'w') as f:
+            f.write(str(e))
+        
+        # Cleanup partial files
+        if os.path.exists(filepath):
+            os.remove(filepath)
+
+def convert_to_mp3(input_path, output_path):
+    """Convert WAV to MP3 using FFmpeg"""
+    command = [
+        'ffmpeg',
+        '-i', input_path,
+        '-vn', '-ar', '44100', '-ac', '2', '-b:a', '192k',
+        output_path
+    ]
+    
+    try:
+        result = subprocess.run(command, capture_output=True, text=True)
+        if result.returncode != 0:
+            app.logger.error(f"FFmpeg failed: {result.stderr}")
+            return False
+        return True
+    except Exception as e:
+        app.logger.error(f"FFmpeg exception: {str(e)}")
+        return False
 
 @app.route('/status/<task_id>')
 def check_status(task_id):
-    """Check processing status"""
-    output_folder = os.path.join(app.config['AUDIO_FOLDER'], task_id)
+    output_folder = normalize_path(app.config['AUDIO_FOLDER'], task_id)
     
-    if os.path.exists(os.path.join(output_folder, 'completed.flag')):
+    if os.path.exists(normalize_path(output_folder, "error.flag")):
+        with open(normalize_path(output_folder, "error.flag"), 'r') as f:
+            return jsonify({"status": "error", "message": f.read()}), 500
+            
+    if os.path.exists(normalize_path(output_folder, "completed.flag")):
         return jsonify({
             "status": "completed",
             "karaoke": f"{task_id}/other.mp3",
             "autotune": f"{task_id}/vocals.mp3"
         })
-    elif os.path.exists(os.path.join(output_folder, 'error.flag')):
-        return jsonify({"status": "error", "message": "Processing failed"}), 500
-    else:
-        return jsonify({"status": "processing"})
-
-@async_processing
-def process_audio(filepath, task_id):
-    """Process audio file in background"""
-    try:
-        output_folder = os.path.join(app.config['AUDIO_FOLDER'], task_id)
-        os.makedirs(output_folder, exist_ok=True)
-        
-        # Create processing flag
-        with open(os.path.join(output_folder, 'processing.flag'), 'w') as f:
-            f.write('')
-        
-        # Run Demucs to separate vocals and instrumentals
-        command = ["demucs", "-o", app.config['AUDIO_FOLDER'], "--filename", f"{task_id}.wav", filepath]
-        result = subprocess.run(command, capture_output=True, text=True)
-        
-        if result.returncode != 0:
-            app.logger.error(f"Demucs failed: {result.stderr}")
-            raise Exception("Audio separation failed")
-        
-        # Paths to the output files
-        karaoke_path = os.path.join(output_folder, "other.wav")
-        autotune_path = os.path.join(output_folder, "vocals.wav")
-        
-        # Convert WAV to MP3 with FFmpeg
-        ffmpeg_command_karaoke = [
-            'ffmpeg', '-i', karaoke_path, '-vn', '-ar', '44100', '-ac', '2', '-b:a', '192k', 
-            os.path.join(output_folder, "other.mp3")
-        ]
-        ffmpeg_command_autotune = [
-            'ffmpeg', '-i', autotune_path, '-vn', '-ar', '44100', '-ac', '2', '-b:a', '192k',
-            os.path.join(output_folder, "vocals.mp3")
-        ]
-        
-        # Run FFmpeg conversion
-        for cmd in [ffmpeg_command_karaoke, ffmpeg_command_autotune]:
-            result = subprocess.run(cmd, capture_output=True, text=True)
-            if result.returncode != 0:
-                app.logger.error(f"FFmpeg failed: {result.stderr}")
-                raise Exception("Audio conversion failed")
-        
-        # Clean up temporary files
-        os.remove(karaoke_path)
-        os.remove(autotune_path)
-        os.remove(filepath)
-        
-        # Create completion flag
-        with open(os.path.join(output_folder, 'completed.flag'), 'w') as f:
-            f.write('')
-            
-        app.logger.info(f"Processing completed for task: {task_id}")
-        
-    except Exception as e:
-        app.logger.error(f"Error processing audio: {str(e)}")
-        # Create error flag
-        with open(os.path.join(output_folder, 'error.flag'), 'w') as f:
-            f.write(str(e))
-        
-        # Clean up any partial files
-        if os.path.exists(filepath):
-            os.remove(filepath)
+    
+    return jsonify({"status": "processing"})
 
 @app.route('/download/<path:filename>')
 def download_file(filename):
     try:
-        directory = os.path.dirname(os.path.join(app.config['AUDIO_FOLDER'], filename))
+        directory = os.path.dirname(normalize_path(app.config['AUDIO_FOLDER'], filename))
         file = os.path.basename(filename)
         
-        # Security check
-        if '..' in filename or filename.startswith('/'):
+        if '..' in filename or not os.path.exists(normalize_path(directory, file)):
             raise ValueError("Invalid filename")
             
         return send_from_directory(directory, file, as_attachment=True)
@@ -186,21 +179,25 @@ def download_file(filename):
         app.logger.error(f"Download error: {str(e)}")
         return jsonify({"error": str(e)}), 404
 
-@app.route('/cleanup', methods=['POST'])
-def cleanup_files():
-    """Endpoint to clean up old files"""
-    try:
-        cleanup_old_files(app.config['UPLOAD_FOLDER'])
-        cleanup_old_files(app.config['AUDIO_FOLDER'])
-        return jsonify({"status": "success"})
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
+def cleanup_old_files():
+    """Delete files older than 24 hours"""
+    now = time.time()
+    for folder in [app.config['UPLOAD_FOLDER'], app.config['AUDIO_FOLDER']]:
+        for filename in os.listdir(folder):
+            filepath = os.path.join(folder, filename)
+            if os.path.isfile(filepath):
+                file_age = (now - os.path.getmtime(filepath)) / 3600
+                if file_age > 24:
+                    try:
+                        os.remove(filepath)
+                        app.logger.info(f"Cleaned up: {filepath}")
+                    except Exception as e:
+                        app.logger.error(f"Cleanup failed: {filepath} - {str(e)}")
 
 if __name__ == '__main__':
-    # Schedule periodic cleanup
+    # Schedule cleanup every hour
     scheduler = BackgroundScheduler()
-    scheduler.add_job(func=cleanup_old_files, args=[app.config['UPLOAD_FOLDER']], trigger='interval', hours=1)
-    scheduler.add_job(func=cleanup_old_files, args=[app.config['AUDIO_FOLDER']], trigger='interval', hours=1)
+    scheduler.add_job(cleanup_old_files, 'interval', hours=1)
     scheduler.start()
     
     app.run(debug=True, host='0.0.0.0')
