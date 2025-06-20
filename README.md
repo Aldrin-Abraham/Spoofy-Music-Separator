@@ -167,3 +167,167 @@ Made with ❤️ at TinkerHub Useless Projects
 
 ![Static Badge](https://img.shields.io/badge/TinkerHub-24?color=%23000000&link=https%3A%2F%2Fwww.tinkerhub.org%2F)
 ![Static Badge](https://img.shields.io/badge/UselessProject--24-24?link=https%3A%2F%2Fwww.tinkerhub.org%2Fevents%2FQ2Q1TQKX6Q%2FUseless%2520Projects)
+
+---
+# Version 2
+
+Spoofy v1 was a foundational prototype that focused solely on backend audio separation using Demucs. While it successfully extracted four audio stems (bass, drums, vocals, other), users had no way to interact with or download these files via a web interface.
+
+Spoofy v2, the current version, is a fully functional upgrade with:
+* A complete frontend UI for uploading songs, visualizing progress, and downloading results.
+* Conversion of .wav files to .mp3 for easy playback and sharing.
+* Downloadable karaoke (other) and autotuned vocals directly from the browser.
+* Task-based async handling and auto-cleanup of old files.
+ 
+While v2 still excludes bass and drums from the karaoke track and offers basic audio quality, it marks a significant leap from raw processing to an interactive user experience.
+
+# 🎧 Spoofy – AI Music Splitter & Autotuner
+
+Spoofy is a full-stack web app that lets users upload a song and receive two downloadable versions: a karaoke-style instrumental (without vocals) and an autotuned vocal track. Powered by Demucs for source separation and FFmpeg for conversion, Spoofy features:
+* A smooth, drag-and-drop interface with real-time progress feedback.
+* Auto-conversion and download of audio without needing manual file handling.
+* Background processing and task status polling to ensure non-blocking UX.
+
+While not professional studio-grade, Spoofy offers a fast and easy way to separate and enhance vocals for casual remixing, practice, or fun.
+
+# 🔧 Technical Details
+## ✅ Technologies / Components Used
+
+### 🖥️ For Software:
+
+Languages Used:
+* Python: Backend logic, audio processing using Demucs, and handling file uploads.
+* HTML / CSS: Structuring and styling the frontend interface.
+* JavaScript: For dynamic frontend interaction including drag-and-drop, progress updates, and file handling.
+
+Frameworks Used:
+* Flask: Lightweight Python web framework used for routing, server setup, and serving HTML templates.
+
+Libraries Used:
+* Demucs: Deep learning model for music source separation.
+* Torch: Underlying machine learning framework required by Demucs.
+* Werkzeug: Flask’s internal library for secure filename handling.
+
+Tools Used:
+* VS Code: Code editor used for development.
+* Git: Version control system for managing source code.
+* GitHub: Repository hosting and version tracking.
+
+### 🖥️ For Hardware:
+
+Main Components:
+* A general-purpose computer/laptop capable of running Python and Flask.
+
+Specifications Recommended:
+* Processor: Intel i5 or equivalent.
+* RAM: Minimum 8GB for smooth audio processing.
+* Storage: At least 1GB free for temporary audio files.
+* Speakers: For playback and testing of processed audio.
+
+Tools Required:
+* Python 3.x: Installed environment for running the project.
+* pip: Python package manager for dependency installation.
+
+## ⚙️ Implementation
+
+### 🗃️ File Upload & Server Setup:
+* Users upload an audio file via the web interface.
+* Flask handles the request and stores the file temporarily in /uploads.
+* Files are assigned unique IDs using UUID to avoid overwriting.
+
+### 🎛️ Audio Processing Using Demucs:
+* Flask calls Demucs to split the uploaded song into four parts (vocals, bass, drums, other).
+* Only the vocals and other are kept.
+  * Vocals are processed into the autotune version.
+  * Other (without vocals, bass, and drums) becomes the karaoke version.
+* Output files are saved in static/audio/<task_id>/.
+
+### 🎨 Frontend Design & User Interaction:
+* index.html provides a responsive UI for file upload.
+* Progress updates (upload & processing) are displayed in real-time using JavaScript (script.js).
+* Styles are defined in style.css, offering a clean and modern aesthetic.
+
+### 💾 Downloadable Output:
+* When processing is complete, download links are generated dynamically using the task_id.
+* The user can preview or download the karaoke and autotune MP3 files.
+
+## 🛠️ Installation
+
+### 📥 Clone the Repository:
+~~~bash
+git clone https://github.com/yourusername/spoofy-origin.git
+cd spoofy-origin
+~~~
+
+### 🧪 Set Up Virtual Environment (Optional but Recommended):
+~~~bash
+python -m venv venv
+# Activate:
+source venv/bin/activate      # Linux/Mac
+venv\Scripts\activate         # Windows
+~~~
+
+### 📦 Install Dependencies:
+~~~bash
+pip install -r requirements.txt
+~~~
+
+## ▶️ Run the Project
+
+1. Start the Flask server:
+~~~bash
+python app.py
+~~~
+
+2. Open your browser and go to:
+~~~bash
+http://localhost:5000
+~~~
+
+3. Upload an audio file. Once processed, download links for karaoke and autotune versions will appear.
+
+## 📄 Project Documentation
+
+### 📌 Overview:
+Spoofy Origin is a web-based audio processing tool that uses AI-powered source separation to extract vocals and instrumentals from user-uploaded songs. It allows users to download karaoke (instrumental) and autotune (vocal) versions for creative uses such as covers, remixing, or practice.
+
+✨ Features:
+* 🎵 Song Upload: Drag-and-drop interface for user-friendly uploads.
+* 🧠 Audio Separation: Uses machine learning to isolate vocals and music.
+* 📥 Download Options: Output files available directly in MP3 format.
+* 📊 Live Progress Bar: Visual feedback during processing.
+* 🔄 Reset & Reupload: Simple interface to process multiple songs.
+
+🧱 Technologies Used:
+* Languages: Python, JavaScript, HTML, CSS
+* Framework: Flask
+* Libraries: Demucs, Torch, Flask, Werkzeug
+* Tools: FFmpeg (for audio conversion), Virtualenv (optional environment)
+
+## 🏗️ Architecture
+
+### 🔁 Client-Server Model:
+
+Frontend (HTML/CSS/JavaScript):
+* Handles user uploads, progress display, and download actions.
+* Interacts with backend via fetch for upload and task status polling.
+
+Backend (Python + Flask):
+* Manages file uploads, stores files, and triggers processing.
+* Runs Demucs + FFmpeg to produce output.
+* Serves completed files through Flask endpoints (/download/<file>).
+
+# Screenshots
+1. Webpage before uploading
+
+![Start](https://github.com/user-attachments/assets/99e8c911-11db-400e-ad7f-e2bdf5376ded)
+
+2. Webpage during processing
+
+![Middle](https://github.com/user-attachments/assets/fdc148a1-4bdb-4718-947a-8ec11e673269)
+
+3. Webpage after processing
+
+![End](https://github.com/user-attachments/assets/7a78e13c-7129-4a62-aea2-cd4ca8813f0f)
+
+---
